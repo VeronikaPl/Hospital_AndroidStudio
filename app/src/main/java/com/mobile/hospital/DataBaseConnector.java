@@ -1,5 +1,6 @@
 package com.mobile.hospital;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import static com.mobile.hospital.DBHelper.TABLE_1;
 import static com.mobile.hospital.DBHelper.TABLE_2;
 
@@ -9,6 +10,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -100,5 +102,50 @@ public class DataBaseConnector {
                 }
             }
         }
+    }
+
+    public void updateDoctor(long id, String name, String surname, String treatment, int numberOfPatients) {
+        open();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("name", name);
+        contentValues.put("surname", surname);
+        contentValues.put("treatment", treatment);
+        contentValues.put("number of patients", numberOfPatients);
+
+        String whereClause = "doctor_id = ?";
+        String[] whereArgs = {String.valueOf(id)};
+
+        int rowsAffected = database.update("Doctor", contentValues, whereClause, whereArgs);
+
+        if (rowsAffected > 0) {
+            Log.d(TAG, "Doctor updated successfully");
+        } else {
+            Log.d(TAG, "Failed to update doctor");
+        }
+
+        close();
+    }
+
+    public void updatePrescription(long id, String name, int amount, Doctor doctor_id) {
+        open();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("name", name);
+        contentValues.put("amount", amount);
+        contentValues.put("doctor_id", doctor_id.getId());
+
+        String whereClause = "prescription_id = ?";
+        String[] whereArgs = {String.valueOf(id)};
+
+        int rowsAffected = database.update("Prescription", contentValues, whereClause, whereArgs);
+
+        if (rowsAffected > 0) {
+            Log.d(TAG, "Prescription updated successfully");
+        } else {
+            Log.d(TAG, "Failed to update prescription");
+        }
+
+        close();
     }
 }

@@ -73,6 +73,16 @@ public class ExampleInstrumentedTest {
     }
 
     @Test
+    public void testUpdateDoctor() {
+        connector.updateDoctor(2, "Ivan", "Ivanov", "take medicines", 15);
+    }
+
+    @Test
+    public void testUpdatePrescription() {
+        connector.updatePrescription(2, "Ivan", 3, Doctor.getDoctorByID(2));
+    }
+
+    @Test
     public void testDeleteRowDoctor() {
         Connection connection = (Connection) connector;
         String deleteQuery = "DELETE FROM Doctor WHERE id = ?";
