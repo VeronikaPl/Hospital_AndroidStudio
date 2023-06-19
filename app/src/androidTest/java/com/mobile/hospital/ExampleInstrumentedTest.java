@@ -1,10 +1,7 @@
 package com.mobile.hospital;
 
-import static com.mobile.hospital.DBHelper.TABLE_1;
-
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.SQLException;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -40,36 +37,24 @@ public class ExampleInstrumentedTest {
     public void tearDown() {
         connector.close();
     }
+    @Test public void testAPreConditions() {assertNotNull(connector);}
 
     @Test
     public void tableDoctorRowAddition_isCorrect() {
-        int id = 0;
-        String name = "name";
-        String surname = "surname";
-        String treatment = "treatment";
-        Doctor doctor = new Doctor(id++, name, surname, treatment, 1);
+        Doctor doctor = new Doctor("name", "surname", "treatment", 12);
+        int rowCount = connector.getRowCount("Doctor");
         connector.insertRowDoctor(doctor);
-        ContentValues row = new ContentValues();
-        row.put(DBHelper.TABLE_COLUMN_name, doctor.getName());
-        row.put(DBHelper.TABLE_COLUMN_surname, doctor.getSurname());
-        row.put(DBHelper.TABLE_COLUMN_treatment, doctor.getTreatment());
-        row.put(DBHelper.TABLE_COLUMN_number_of_patients, doctor.getNumberOfPatients());
-        long rowId = doctor.getId();
-        assertEquals(0, rowId);
+        int newRowCount=connector.getRowCount("Doctor");;
+        assertEquals(newRowCount, rowCount+1);
     }
 
     @Test
     public void tablePrescriptionRowAddition_isCorrect() {
-        int id = 0;
-        String name = "name";
-        Prescription prescription = new Prescription(id++, name, 1, Doctor.getDoctorByID(1));
+        Prescription prescription = new Prescription("name", 3, Doctor.getDoctorByID(1));
+        int rowCount = connector.getRowCount("Prescription");
         connector.insertRowPrescription(prescription);
-        ContentValues row = new ContentValues();
-        row.put(DBHelper.TABLE_COLUMN_name_medicine, prescription.getName());
-        row.put(DBHelper.TABLE_COLUMN_amount, prescription.getAmount());
-        row.put(DBHelper.TABLE_COLUMN_Prescription_Doctor_ID, prescription.getDoctor_id().getId());
-        long rowId = prescription.getId();
-        assertEquals(0, rowId);
+        int newRowCount=connector.getRowCount("Prescription");
+        assertEquals(newRowCount, rowCount+1);
     }
 
     @Test

@@ -26,7 +26,7 @@ public class Doctor_DB extends AppCompatActivity {
 
     private void loadFromDBToMemory() {
         DataBaseConnector dataBaseConnector = new DataBaseConnector(this);
-        dataBaseConnector.getTableAllRowsDoctor();
+        dataBaseConnector.getAllDoctors();
     }
 
     public void newDoctor(View view) {

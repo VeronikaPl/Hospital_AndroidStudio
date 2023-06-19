@@ -15,6 +15,7 @@ public class Doctor_DB_Save extends AppCompatActivity {
     private EditText nameEditText, surnameEditText, treatmentEditText, numberOfPatientsEditText;
     private Button deleteButton;
     private Doctor selectedDoctor;
+    private DataBaseConnector dataBaseConnector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,24 +32,23 @@ public class Doctor_DB_Save extends AppCompatActivity {
         deleteButton = findViewById(R.id.deleteButton);
     }
 
-    private void checkForEditDoctor() {
-        Intent previousIntent = getIntent();
-
-        int passedDoctorID = previousIntent.getIntExtra(Doctor.DOCTOR_EDIT_EXTRA, -1);
-        selectedDoctor = Doctor.getDoctorByID(passedDoctorID);
-
-        if (selectedDoctor != null) {
-            nameEditText.setText(selectedDoctor.getName());
-            surnameEditText.setText(selectedDoctor.getSurname());
-            treatmentEditText.setText(selectedDoctor.getTreatment());
-            numberOfPatientsEditText.setText(selectedDoctor.getNumberOfPatients());
-        } else {
-            deleteButton.setVisibility(View.INVISIBLE);
-        }
-    }
+//    private void checkForEditDoctor() {
+//        Intent previousIntent = getIntent();
+//
+//        int passedDoctorID = previousIntent.getIntExtra(Doctor.DOCTOR_EDIT_EXTRA, -1);
+//        selectedDoctor = Doctor.getDoctorByID(passedDoctorID);
+//
+//        if (selectedDoctor != null) {
+//            nameEditText.setText(selectedDoctor.getName());
+//            surnameEditText.setText(selectedDoctor.getSurname());
+//            treatmentEditText.setText(selectedDoctor.getTreatment());
+//            numberOfPatientsEditText.setText(selectedDoctor.getNumberOfPatients());
+//        } else {
+//            deleteButton.setVisibility(View.INVISIBLE);
+//        }
+//    }
 
     public void save(View view) {
-        DataBaseConnector dataBaseConnector = new DataBaseConnector(this);
         String name = String.valueOf(nameEditText.getText());
         String surname = String.valueOf(surnameEditText.getText());
         String treatment = String.valueOf(treatmentEditText.getText());
@@ -70,8 +70,7 @@ public class Doctor_DB_Save extends AppCompatActivity {
     }
 
     public void deleteRow(View view) {
-        selectedDoctor.setDeleted(new Date());
-        DataBaseConnector dataBaseConnector = new DataBaseConnector(this);
+        dataBaseConnector.deleteDoctor(selectedDoctor.getId());
         finish();
     }
 }

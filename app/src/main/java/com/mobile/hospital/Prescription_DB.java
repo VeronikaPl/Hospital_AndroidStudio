@@ -26,7 +26,7 @@ public class Prescription_DB extends AppCompatActivity {
 
     private void loadFromDBToMemory() {
         DataBaseConnector dataBaseConnector = new DataBaseConnector(this);
-        dataBaseConnector.getTableAllRowsPrescription();
+        dataBaseConnector.getAllPrescriptions();
     }
 
 

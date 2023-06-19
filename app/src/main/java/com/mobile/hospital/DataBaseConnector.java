@@ -1,8 +1,7 @@
 package com.mobile.hospital;
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-import static com.mobile.hospital.DBHelper.TABLE_1;
-import static com.mobile.hospital.DBHelper.TABLE_2;
+import static com.mobile.hospital.DataBaseConnector.DBHelper.TABLE_1;
+import static com.mobile.hospital.DataBaseConnector.DBHelper.TABLE_2;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
@@ -10,7 +9,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import androidx.constraintlayout.helper.widget.MotionEffect;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -67,41 +69,70 @@ public class DataBaseConnector {
         }
     }
 
-    public void getTableAllRowsDoctor() {
-        SQLiteDatabase sqLiteDatabase = this.databaseOpenHelper.getWritableDatabase();
-        try (Cursor result = sqLiteDatabase.rawQuery("SELECT * FROM " + TABLE_1, null)) {
-            if (result.getCount() != 0) {
-                while (result.moveToNext()) {
-                    int id = result.getInt(1);
-                    String name = result.getString(2);
-                    String surname = result.getString(3);
-                    String treatment = result.getString(4);
-                    int numOfPatients = result.getInt(5);
-                    String stringDeleted = result.getString(6);
-                    Date deleted = getDateFromString(stringDeleted);
-                    Doctor doctor = new Doctor(id, name, surname, treatment, numOfPatients, deleted);
-                    Doctor.doctorArrayList.add(doctor);
-                }
-            }
-        }
+    public void deleteDoctor(long id) {
+        open();
+        database.delete(TABLE_1, "doctor_id=" + id, null);
+        close();
     }
 
-    public void getTableAllRowsPrescription() {
-        SQLiteDatabase sqLiteDatabase = this.databaseOpenHelper.getWritableDatabase();
-        try (Cursor result = sqLiteDatabase.rawQuery("SELECT * FROM " + TABLE_2, null)) {
-            if (result.getCount() != 0) {
-                while (result.moveToNext()) {
-                    int id = result.getInt(1);
-                    String name = result.getString(2);
-                    int amount = result.getInt(3);
-                    Doctor doctor_id = Doctor.getDoctorByID(result.getInt(4));
-                    String stringDeleted = result.getString(6);
-                    Date deleted = getDateFromString(stringDeleted);
-                    Prescription prescription = new Prescription(id, name, amount, doctor_id, deleted);
-                    Prescription.prescriptionArrayList.add(prescription);
-                }
-            }
+    public void deletePrescription(long id) {
+        open();
+        database.delete(TABLE_2, "prescription_id=" + id, null);
+        close();
+    }
+
+    public Cursor getAllDoctors() {
+        return database.query(TABLE_1, new String[]{"doctor_id", DBHelper.TABLE_COLUMN_name,
+                        DBHelper.TABLE_COLUMN_surname, DBHelper.TABLE_COLUMN_treatment, DBHelper.TABLE_COLUMN_number_of_patients},
+                null, null, null, null, null);
+    }
+
+    public Cursor getAllPrescriptions() {
+        return database.query(TABLE_2, new String[]{"prescription_id", DBHelper.TABLE_COLUMN_name_medicine, DBHelper.TABLE_COLUMN_amount, DBHelper.TABLE_COLUMN_Prescription_Doctor_ID},
+                null, null, null, null, null);
+    }
+
+    public class DBHelper extends SQLiteOpenHelper {
+        public static final String TABLE_1 = "Doctor";
+        public static final String TABLE_COLUMN_Doctor_ID = "doctor_id";
+        public static final String TABLE_COLUMN_name = "name";
+        public static final String TABLE_COLUMN_surname = "surname";
+        public static final String TABLE_COLUMN_treatment = "treatment";
+        public static final String TABLE_COLUMN_number_of_patients = "number of patients";
+
+        public static final String TABLE_2 = "Prescription";
+        public static final String TABLE_COLUMN_Prescription_ID = "prescription_id";
+        public static final String TABLE_COLUMN_name_medicine = "name";
+        public static final String TABLE_COLUMN_amount = "amount";
+        public static final String TABLE_COLUMN_Prescription_Doctor_ID = "doctor_id";
+
+        public DBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+            super(context, name, factory, version);
         }
+
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            db.execSQL("CREATE TABLE " + TABLE_1 + " ( "
+                    + TABLE_COLUMN_Doctor_ID + " integer primary key autoincrement, "
+                    + TABLE_COLUMN_name + " TEXT, "
+                    + TABLE_COLUMN_surname + " TEXT, "
+                    + TABLE_COLUMN_treatment + " TEXT, "
+                    + TABLE_COLUMN_number_of_patients + " INTEGER " + " );");
+
+            db.execSQL("CREATE TABLE " + TABLE_2 + " ( "
+                    + TABLE_COLUMN_Prescription_ID + " integer primary key autoincrement, "
+                    + TABLE_COLUMN_name_medicine + " TEXT, "
+                    + TABLE_COLUMN_amount + " INEGER, "
+                    + TABLE_COLUMN_Prescription_Doctor_ID + " INTEGER, "
+                    + " FOREIGN KEY(" + TABLE_COLUMN_Prescription_Doctor_ID + ") REFERENCES " + TABLE_1 + "(" + TABLE_COLUMN_Doctor_ID + ") "
+                    + " );");
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+        }
+
     }
 
     public void updateDoctor(long id, String name, String surname, String treatment, int numberOfPatients) {
@@ -119,9 +150,9 @@ public class DataBaseConnector {
         int rowsAffected = database.update("Doctor", contentValues, whereClause, whereArgs);
 
         if (rowsAffected > 0) {
-            Log.d(TAG, "Doctor updated successfully");
+            Log.d(MotionEffect.TAG, "Doctor updated successfully");
         } else {
-            Log.d(TAG, "Failed to update doctor");
+            Log.d(MotionEffect.TAG, "Failed to update doctor");
         }
 
         close();
@@ -141,11 +172,23 @@ public class DataBaseConnector {
         int rowsAffected = database.update("Prescription", contentValues, whereClause, whereArgs);
 
         if (rowsAffected > 0) {
-            Log.d(TAG, "Prescription updated successfully");
+            Log.d(MotionEffect.TAG, "Prescription updated successfully");
         } else {
-            Log.d(TAG, "Failed to update prescription");
+            Log.d(MotionEffect.TAG, "Failed to update prescription");
         }
 
         close();
+    }
+
+    public int getRowCount(String table) {
+        open();
+        int rowCount = 0;
+        Cursor cursor = database.rawQuery("SELECT COUNT(*) FROM " + table, null);
+        if (cursor.moveToFirst()) {
+            rowCount = cursor.getInt(0);
+        }
+        cursor.close();
+        close();
+        return rowCount;
     }
 }

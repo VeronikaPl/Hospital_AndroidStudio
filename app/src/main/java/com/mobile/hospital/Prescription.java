@@ -29,6 +29,14 @@ public class Prescription {
         deleted = null;
     }
 
+    public Prescription(String name, int amount, Doctor doctorByID) {
+        id++;
+        this.name = name;
+        this.amount = amount;
+        this.doctor_id = doctor_id;
+        deleted = null;
+    }
+
     public int getId() {
         return id;
     }

@@ -32,6 +32,15 @@ public class Doctor {
         deleted = null;
     }
 
+    public Doctor(String name, String surname, String treatment, int numberOfPatients) {
+        id++;
+        this.name = name;
+        this.surname = surname;
+        this.treatment = treatment;
+        this.numberOfPatients = numberOfPatients;
+        deleted = null;
+    }
+
     public int getId() {
         return id;
     }

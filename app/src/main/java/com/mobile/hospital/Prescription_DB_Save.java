@@ -15,6 +15,7 @@ public class Prescription_DB_Save extends AppCompatActivity {
     private EditText nameMedEditText, amountEditText, doctorEditText;
     private Button deleteButton;
     private Prescription selectedPrescription;
+    private DataBaseConnector dataBaseConnector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,29 +31,27 @@ public class Prescription_DB_Save extends AppCompatActivity {
         deleteButton = findViewById(R.id.deleteButton);
     }
 
-    private void checkForEditPrescription() {
-        Intent previousIntent = getIntent();
-
-        int passedDPrescriptionID = previousIntent.getIntExtra(Prescription.PRESCRIPTION_EDIT_EXTRA, -1);
-        selectedPrescription = Prescription.getPrescriptionByID(passedDPrescriptionID);
-
-        if (selectedPrescription != null) {
-            nameMedEditText.setText(selectedPrescription.getName());
-            amountEditText.setText(selectedPrescription.getAmount());
-            doctorEditText.setText(selectedPrescription.getDoctor_id().getId());
-        } else {
-            deleteButton.setVisibility(View.INVISIBLE);
-        }
-    }
+//    private void checkForEditPrescription() {
+//        Intent previousIntent = getIntent();
+//
+//        int passedDPrescriptionID = previousIntent.getIntExtra(Prescription.PRESCRIPTION_EDIT_EXTRA, -1);
+//        selectedPrescription = Prescription.getPrescriptionByID(passedDPrescriptionID);
+//
+//        if (selectedPrescription != null) {
+//            nameMedEditText.setText(selectedPrescription.getName());
+//            amountEditText.setText(selectedPrescription.getAmount());
+//            doctorEditText.setText(selectedPrescription.getDoctor_id().getId());
+//        } else {
+//            deleteButton.setVisibility(View.INVISIBLE);
+//        }
+//    }
 
     public void deleteRow(View view) {
-        selectedPrescription.setDeleted(new Date());
-        DataBaseConnector dataBaseConnector = new DataBaseConnector(this);
+        dataBaseConnector.deletePrescription(selectedPrescription.getId());
         finish();
     }
 
     public void save(View view) {
-        DataBaseConnector dataBaseConnector = new DataBaseConnector(this);
         String nameMed = String.valueOf(nameMedEditText.getText());
         int amount = Integer.parseInt(String.valueOf(amountEditText.getText()));
         Doctor doctor_id = Doctor.getDoctorByID(Integer.parseInt(String.valueOf(doctorEditText.getText())));
